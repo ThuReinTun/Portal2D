@@ -8,8 +8,10 @@ window.onload = function () {
 		shipMirrored = [],
 		numOfMirrors = 0;
 
-	var portal1 = portal.create(100, 100, 25),
+	var portal1 = portal.create(100, 100, 25, Math.PI / 4),
 		portal2 = portal.create(600, 300, 15);
+
+	portal2.setFixedAngle(false);
 
 	ship.setAngle( Math.random() * Math.PI * 2);
 	for (var i = 0; i < numOfMirrors; i ++) {
@@ -36,6 +38,21 @@ window.onload = function () {
 	context.arc(portal2.position.x, portal2.position.y, portal2.radius, 0, Math.PI * 2, false);
 	context.fill();
 
+	DrawPortalDirection(portal1);
+	DrawPortalDirection(portal2);
+
+	function DrawPortalDirection (p) {
+		if (p.isFixedAngle()) {
+			var drawV = p.position;
+			drawV.setDirection(p.angle);
+			drawV.setMagnitude(p.radius * 2);
+
+			context.beginPath();
+			context.moveTo(p.position.x, p.position.y);
+			context.lineTo(p.position.x + p.radius * 2, p.position.y + p.radius * 2);
+			context.stroke();
+		}
+	}
 		// update ship properties
 		ship.update();
 		for (var i = 0; i < numOfMirrors; i ++) {

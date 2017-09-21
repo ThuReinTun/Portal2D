@@ -1,15 +1,21 @@
 var portal = {
 	position: null,
 	radius: null,
+	angle: null, // angle to output the object
+
+	fixedAngle: null,
 	linkPortal: null, // link must be a portal object
 	isOpen: null,
 	isVisible: null,
 
-	create: function (x, y, radius) {
+	create: function (x, y, radius, angle) {
 		var obj = Object.create(this);
 
 		obj.position = vector.create(x, y);
 		obj.setRadius(radius);
+		obj.setAngle(angle || 0);
+		obj.setFixedAngle(true);
+
 		obj.isOpen = true;
 		obj.isVisible = true;
 
@@ -22,6 +28,12 @@ var portal = {
 	getRadius: function () {
 		return this.radius;
 	},
+	getAngle: function () {
+		return this.angle;
+	},
+	isFixedAngle: function () {
+		return this.fixedAngle;
+	},
 	getLink: function () {
 		return this.linkPortal;
 	},
@@ -32,6 +44,12 @@ var portal = {
 	},
 	setRadius: function (radius) {
 		this.radius = radius;
+	},
+	setAngle: function (val) {
+		this.angle = val;
+	},
+	setFixedAngle: function (val) {
+		this.fixedAngle = val;
 	},
 	setLink: function (p2) {
 		this.linkPortal = p2;
@@ -54,10 +72,25 @@ var portal = {
 		// portal offset to exclude the portal tranported obj out of the radius
 		var portalOffset = vector.create(0, 0);
 		portalOffset.setMagnitude(radius * 2);
-		portalOffset.setDirection(obj.particle.getVelocity().getDirection());
 
-		// set new position and push obj out offset zone
-		obj.particle.setPosition(x, y);
-		obj.particle.position.addTo(portalOffset);
+		if (this.getLink().isFixedAngle()) {
+			portalOffset.setDirection(this.getLink().angle);
+			// set new position and push obj out offset zone
+			obj.particle.setPosition(x, y);
+			obj.particle.position.addTo(portalOffset);
+
+			// set direction of spaceship particle velocity
+			obj.particle.setVelocity(obj.particle.getVelocity().getMagnitude(), portalOffset.getDirection());
+			// set turn angle of the spaceship
+			obj.setAngle(portalOffset.getDirection());
+		}
+		else {
+			portalOffset.setDirection(obj.particle.getVelocity().getDirection());
+			// set new position and push obj out offset zone
+			obj.particle.setPosition(x, y);
+			obj.particle.position.addTo(portalOffset);
+		}
+		
+
 	}
 }
